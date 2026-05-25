@@ -1,0 +1,9 @@
+127.0.0.1 localhost
+::1 localhost
+
+10.0.0.8 project-x-corp-svr.home.local
+10.0.0.5 project-x-dc.home.local
+10.0.0.101 project-x-linux-client.home.local
+10.0.0.10 project-x-sec-box.home.local
+10.0.0.103 project-x-sec-work.home.local
+10.0.0.100 project-x-win-client.home.local

@@ -1,0 +1,141 @@
+version: 3
+resources:
+- kind: Desktop
+  ram:
+    size: 32
+    mts: 5600
+  cpus:
+  - model: AMD Ryzen 7700x
+    cores: 8
+    threads: 16
+  drives:
+  - type: ssd
+    size: 500
+  gpus:
+  - model: AMD RX 7900XT
+    vram: 20
+  name: Virtual Host
+- kind: System
+  type: vm
+  os: Windows Server 2025
+  cores: 2
+  ram: 4
+  ip: 10.0.0.5
+  drives:
+  - type: nvme
+    size: 50
+  name: project-x-dc
+  notes: |-
+    Domain Name: corp.project-x-dc.com
+    Role: Domain Controller / DNS / DHCP
+    Subnet Mask: 255.255.255.0
+    Gateway: 10.0.0.1
+    DNS: 127.0.0.1
+    Forwarder: 8.8.8.8
+  runsOn:
+  - Virtual Host
+- kind: System
+  type: vm
+  os: Windows 11 Enterprise
+  cores: 2
+  ram: 4
+  ip: 10.0.0.100
+  drives:
+  - type: nvme
+    size: 80
+  name: project-x-win-client
+  runsOn:
+  - Virtual Host
+- kind: System
+  type: vm
+  os: Ubuntu 22.04 Desktop
+  cores: 1
+  ram: 2
+  ip: 10.0.0.101
+  drives:
+  - type: nvme
+    size: 80
+  name: project-x-linux-client
+  runsOn:
+  - Virtual Host
+- kind: Service
+  name: AD DS
+  runsOn:
+  - project-x-dc
+- kind: Service
+  name: AD DNS
+  runsOn:
+  - project-x-dc
+- kind: Service
+  name: AD DHCP
+  runsOn:
+  - project-x-dc
+- kind: System
+  type: vm
+  os: Ubuntu 22.0.4
+  cores: 1
+  ram: 2
+  ip: 10.0.0.8
+  drives:
+  - type: nvme
+    size: 80
+  name: project-x-corp-svr
+  runsOn:
+  - Virtual Host
+- kind: Service
+  network:
+    ip: 10.0.0.101
+    url: 127.0.0.1:8025
+  name: MailHog
+  notes: This is a mailing server that simulates one used in a business environment and is set up to be attacked via phishing.
+  runsOn:
+  - project-x-corp-svr
+- kind: System
+  type: vm
+  os: Kali
+  cores: 1
+  ram: 2
+  drives:
+  - type: nvme
+    size: 55
+  name: project-x-attacker
+  notes: |
+    This is the attacker machine! I used Evil-WinRM, nmap, XFreeRDP, and a fake phishing login page to exploit both the Windows and Linux virtual machines
+  runsOn:
+  - Virtual Host
+- kind: System
+  type: vm
+  os: Ubuntu 22.04 Desktop
+  cores: 2
+  ram: 4
+  ip: 10.0.0.10
+  drives:
+  - type: nvme
+    size: 80
+  name: project-x-sec-box
+  runsOn:
+  - Virtual Host
+- kind: System
+  type: vm
+  os: Security Onion
+  cores: 1
+  ram: 2
+  ip: 10.0.0.103
+  name: project-x-sec-work
+  runsOn:
+  - Virtual Host
+- kind: Service
+  network:
+    ip: 10.0.0.101
+    protocol: SSH
+  name: OpenSSH
+  runsOn:
+  - project-x-linux-client
+- kind: Service
+  network:
+    ip: 10.0.0.8
+    protocol: SSH
+  name: OpenSSH (Corporate Server)
+  runsOn:
+  - project-x-corp-svr
+connections: []
